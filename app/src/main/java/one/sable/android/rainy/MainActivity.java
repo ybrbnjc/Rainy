@@ -1,5 +1,6 @@
 package one.sable.android.rainy;
 
+import android.annotation.SuppressLint;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,9 +23,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    @SuppressLint("ResourceType")
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        // TODO: Implement this method
         getMenuInflater().inflate(R.layout.menu_activity_main, menu);
         return true;
     }
