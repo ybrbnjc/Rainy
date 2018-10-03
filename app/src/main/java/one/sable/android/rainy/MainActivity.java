@@ -9,6 +9,9 @@ import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 public class MainActivity extends AppCompatActivity {
 
     @Override
@@ -45,6 +48,15 @@ public class MainActivity extends AppCompatActivity {
                                  Bundle savedInstanceState) {
             // Inflate the layout for this fragment
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+
+            ArrayList<String> mDummyForecast = new ArrayList<String>();
+            String[] mDummyArray = {"Today - Cloudy - 88/55","Tomorrow - Sunny - 90/75",
+                    "Friday - Clear - 98/37","Saturday - Cloudy - 88/55","Sunay - Sunny - 90/75",
+                    "Monday - Clear - 98/37"};
+            for (String forecast : mDummyArray) {
+                mDummyForecast.add(forecast);
+            }
+
             return rootView;
         }
 
