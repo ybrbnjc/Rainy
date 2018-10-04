@@ -8,6 +8,8 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -50,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
             ArrayList<String> mDummyForecast = new ArrayList<String>();
+
             String[] mDummyArray = {"Today - Cloudy - 88/55","Tomorrow - Sunny - 90/75",
                     "Friday - Clear - 98/37","Saturday - Cloudy - 88/55","Sunay - Sunny - 90/75",
                     "Monday - Clear - 98/37"};
@@ -57,6 +60,11 @@ public class MainActivity extends AppCompatActivity {
                 mDummyForecast.add(forecast);
             }
 
+            ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<>(getActivity(),
+                    R.layout.list_item_forecast,R.id.list_item_forecast_textview,mDummyForecast);
+
+            ListView mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+            mForecastListView.setAdapter(mArrayAdapter);
             return rootView;
         }
 
