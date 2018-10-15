@@ -100,7 +100,7 @@ public class ForecastFragment extends Fragment {
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
             Date date = new Date(time * 1000);
-            SimpleDateFormat format = new SimpleDateFormat("E, MMM d");
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm E, d.MM");
             return format.format(date).toString();
         }
 
@@ -123,22 +123,24 @@ public class ForecastFragment extends Fragment {
          * Fortunately parsing is easy:  constructor takes the JSON string and converts it
          * into an Object hierarchy for us.
          */
-        private String[] getWeatherDataFromJson(String forecastJsonStr, int numDays)
+        private String[] getWeatherDataFromJson(String fcJsonStr)
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
+            final String OWM_ITEMSCOUNT = "cnt";
             final String OWM_LIST = "list";
             final String OWM_WEATHER = "weather";
             final String OWM_TEMPERATURE = "temp";
             final String OWM_MAX = "max";
             final String OWM_MIN = "min";
             final String OWM_DATETIME = "dt";
-            final String OWM_DESCRIPTION = "main";
+            final String OWM_DESCRIPTION = "description";
 
-            JSONObject forecastJson = new JSONObject(forecastJsonStr);
+            JSONObject forecastJson = new JSONObject(fcJsonStr);
+            int mItemCount = forecastJson.getInt(OWM_ITEMSCOUNT);
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
-            String[] resultStrs = new String[numDays];
+            String[] resultStrs = new String[mItemCount];
             for(int i = 0; i < weatherArray.length(); i++) {
                 // For now, using the format "Day, description, hi/low"
                 String day;
@@ -165,9 +167,9 @@ public class ForecastFragment extends Fragment {
                 double low = temperatureObject.getDouble(OWM_MIN);
 
                 highAndLow = formatHighLows(high, low);
-                resultStrs[i] = day + " - " + description + " - " + highAndLow;
+                resultStrs[i] = day + ", " + description + ", " + highAndLow;
             }
-
+            Log.v(LOG_TAG, "ResultString is: " + resultStrs);
             return resultStrs;
         }
 
@@ -231,6 +233,9 @@ public class ForecastFragment extends Fragment {
                     forecastJsonStr = null;
                 }
                 forecastJsonStr = buffer.toString();
+                try {
+                    getWeatherDataFromJson(forecastJsonStr);
+                } catch (org.json.JSONException e) {};
                 Log.v(LOG_TAG,forecastJsonStr);
 
             } catch (IOException e) {
