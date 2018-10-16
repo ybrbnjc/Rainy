@@ -102,17 +102,19 @@ public class ForecastFragment extends Fragment {
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
             final Map<String,String> mDayNamesTranslate = new HashMap<String, String>();
-            mDayNamesTranslate.put("","");
-            mDayNamesTranslate.put("","");
-            mDayNamesTranslate.put("","");
-            mDayNamesTranslate.put("","");
-            mDayNamesTranslate.put("","");
-            mDayNamesTranslate.put("","");
-            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("Mon","Пон");
+            mDayNamesTranslate.put("Tue","Вт");
+            mDayNamesTranslate.put("Wed","Ср");
+            mDayNamesTranslate.put("Thu","Чет");
+            mDayNamesTranslate.put("Fri","Пят");
+            mDayNamesTranslate.put("Sat","Суб");
+            mDayNamesTranslate.put("Sun","Вск");
 
             Date date = new Date(time * 1000);
-            SimpleDateFormat format = new SimpleDateFormat("E d.MM HH:mm");
-            return format.format(date).toString();
+            SimpleDateFormat format = new SimpleDateFormat("E");
+            String mRusDay = mDayNamesTranslate.get(format.format(date).toString());
+            format.applyPattern("d.MM HH:mm");
+            return mRusDay + " " + format.format(date).toString();
         }
 
         /**
@@ -123,7 +125,7 @@ public class ForecastFragment extends Fragment {
             long roundedHigh = Math.round(high);
             long roundedLow = Math.round(low);
 
-            String highLowStr = roundedHigh + "/" + roundedLow;
+            String highLowStr = roundedHigh + "°/" + roundedLow + "°";
             return highLowStr;
         }
 
@@ -180,7 +182,7 @@ public class ForecastFragment extends Fragment {
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + ", " + description + ", " + highAndLow;
             }
-            Log.v(LOG_TAG, "ResultString is: " + resultStrs[0]);
+            Log.v(LOG_TAG, "ResultString is: " + resultStrs[0] + " " + resultStrs[1] + " " + resultStrs[2]);
             return resultStrs;
         }
 
@@ -205,29 +207,13 @@ public class ForecastFragment extends Fragment {
                 final String MODE_PARAM = "mode";
                 final String LANGUAGE_PARAM ="lang";
 
-                Uri builtUri = new Uri.Builder()
-                        .scheme("http")
-                        .authority("api.openweathermap.org")
-                        .appendPath("data")
-                        .appendPath("2.5")
-                        .appendPath("forecast")
+                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendQueryParameter(ID_PARAM,param[0])
                         .appendQueryParameter(APPID_PARAM,"2bec85f095f36e589c16cc58de321265")
                         .appendQueryParameter(FORMAT_PARAM,"metric")
                         .appendQueryParameter(MODE_PARAM,"JSON")
                         .appendQueryParameter(LANGUAGE_PARAM,"ru")
-                        .build();/*
-                Uri.Builder builder = new Uri.Builder()
-                        .scheme("http")
-                        .authority("api.openweathermap.org")
-                        .appendPath("data")
-                        .appendPath("2.5")
-                        .appendPath("forecast")
-                        .appendQueryParameter("appid", "2bec85f095f36e589c16cc58de321265")
-                        .appendQueryParameter("id", param[0])
-                        .appendQueryParameter("units", "metric")
-                        .appendQueryParameter("mode", "JSON");
-                URL url = new URL(builder.build().toString());*/
+                        .build();
 
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG,builtUri.toString());
@@ -269,7 +255,7 @@ public class ForecastFragment extends Fragment {
                 Log.v(LOG_TAG,forecastJsonStr);
 
             } catch (IOException e) {
-                Log.e(LOG_TAG, "Error ", e);
+                Log.e(LOG_TAG, "Error: " + e.getMessage(), e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
                 // to parse it.
                 forecastJsonStr = null;
