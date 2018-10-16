@@ -29,6 +29,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -99,8 +101,17 @@ public class ForecastFragment extends Fragment {
         private String getReadableDateString(long time){
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
+            final Map<String,String> mDayNamesTranslate = new HashMap<String, String>();
+            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("","");
+            mDayNamesTranslate.put("","");
+
             Date date = new Date(time * 1000);
-            SimpleDateFormat format = new SimpleDateFormat("HH:mm E, d.MM");
+            SimpleDateFormat format = new SimpleDateFormat("E d.MM HH:mm");
             return format.format(date).toString();
         }
 
@@ -127,17 +138,17 @@ public class ForecastFragment extends Fragment {
                 throws JSONException {
 
             // These are the names of the JSON objects that need to be extracted.
-            final String OWM_ITEMSCOUNT = "cnt";
+            final String OWM_ITEMS_COUNT = "cnt";
             final String OWM_LIST = "list";
             final String OWM_WEATHER = "weather";
-            final String OWM_TEMPERATURE = "temp";
-            final String OWM_MAX = "max";
-            final String OWM_MIN = "min";
+            final String OWM_MAIN_METRICS = "main";
+            final String OWM_MAX = "temp_max";
+            final String OWM_MIN = "temp_min";
             final String OWM_DATETIME = "dt";
             final String OWM_DESCRIPTION = "description";
 
             JSONObject forecastJson = new JSONObject(fcJsonStr);
-            int mItemCount = forecastJson.getInt(OWM_ITEMSCOUNT);
+            int mItemCount = forecastJson.getInt(OWM_ITEMS_COUNT);
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             String[] resultStrs = new String[mItemCount];
@@ -162,14 +173,14 @@ public class ForecastFragment extends Fragment {
 
                 // Temperatures are in a child object called "temp".  Try not to name variables
                 // "temp" when working with temperature.  It confuses everybody.
-                JSONObject temperatureObject = dayForecast.getJSONObject(OWM_TEMPERATURE);
+                JSONObject temperatureObject = dayForecast.getJSONObject(OWM_MAIN_METRICS);
                 double high = temperatureObject.getDouble(OWM_MAX);
                 double low = temperatureObject.getDouble(OWM_MIN);
 
                 highAndLow = formatHighLows(high, low);
                 resultStrs[i] = day + ", " + description + ", " + highAndLow;
             }
-            Log.v(LOG_TAG, "ResultString is: " + resultStrs);
+            Log.v(LOG_TAG, "ResultString is: " + resultStrs[0]);
             return resultStrs;
         }
 
@@ -194,13 +205,29 @@ public class ForecastFragment extends Fragment {
                 final String MODE_PARAM = "mode";
                 final String LANGUAGE_PARAM ="lang";
 
-                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                Uri builtUri = new Uri.Builder()
+                        .scheme("http")
+                        .authority("api.openweathermap.org")
+                        .appendPath("data")
+                        .appendPath("2.5")
+                        .appendPath("forecast")
                         .appendQueryParameter(ID_PARAM,param[0])
                         .appendQueryParameter(APPID_PARAM,"2bec85f095f36e589c16cc58de321265")
                         .appendQueryParameter(FORMAT_PARAM,"metric")
                         .appendQueryParameter(MODE_PARAM,"JSON")
                         .appendQueryParameter(LANGUAGE_PARAM,"ru")
-                        .build();
+                        .build();/*
+                Uri.Builder builder = new Uri.Builder()
+                        .scheme("http")
+                        .authority("api.openweathermap.org")
+                        .appendPath("data")
+                        .appendPath("2.5")
+                        .appendPath("forecast")
+                        .appendQueryParameter("appid", "2bec85f095f36e589c16cc58de321265")
+                        .appendQueryParameter("id", param[0])
+                        .appendQueryParameter("units", "metric")
+                        .appendQueryParameter("mode", "JSON");
+                URL url = new URL(builder.build().toString());*/
 
                 URL url = new URL(builtUri.toString());
                 Log.v(LOG_TAG,builtUri.toString());
@@ -235,7 +262,10 @@ public class ForecastFragment extends Fragment {
                 forecastJsonStr = buffer.toString();
                 try {
                     getWeatherDataFromJson(forecastJsonStr);
-                } catch (org.json.JSONException e) {};
+                } catch (org.json.JSONException e) {
+                    Log.e(LOG_TAG,"JSON parsing err: "+ e.getMessage());
+
+                };
                 Log.v(LOG_TAG,forecastJsonStr);
 
             } catch (IOException e) {
