@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -29,14 +30,13 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ForecastFragment extends Fragment {
 
+    private ListView mForecastListView;
 
     public ForecastFragment() {
         // Required empty public constructor
@@ -53,7 +53,7 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
+/*
         ArrayList<String> mDummyForecast = new ArrayList<String>();
 
         String[] mDummyArray = {"Today - Cloudy - 88/55","Tomorrow - Sunny - 90/75",
@@ -65,9 +65,9 @@ public class ForecastFragment extends Fragment {
 
         ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<>(getActivity(),
                 R.layout.list_item_forecast,R.id.list_item_forecast_textview,mDummyForecast);
-
-        ListView mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
-        mForecastListView.setAdapter(mArrayAdapter);
+*/
+        mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+//        mForecastListView.setAdapter(mArrayAdapter);
 
         return rootView;
     }
@@ -90,7 +90,7 @@ public class ForecastFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public class FetchWeatherTask extends AsyncTask<String, Void, Void> {
+    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
 
         private final String LOG_TAG = FetchWeatherTask.class.getSimpleName();
 
@@ -98,23 +98,13 @@ public class ForecastFragment extends Fragment {
          * so for convenience we're breaking it out into its own method now.
          */
 
+        @NonNull
         private String getReadableDateString(long time){
             // Because the API returns a unix timestamp (measured in seconds),
             // it must be converted to milliseconds in order to be converted to valid date.
-            final Map<String,String> mDayNamesTranslate = new HashMap<String, String>();
-            mDayNamesTranslate.put("Mon","Пон");
-            mDayNamesTranslate.put("Tue","Вт");
-            mDayNamesTranslate.put("Wed","Ср");
-            mDayNamesTranslate.put("Thu","Чет");
-            mDayNamesTranslate.put("Fri","Пят");
-            mDayNamesTranslate.put("Sat","Суб");
-            mDayNamesTranslate.put("Sun","Вск");
-
             Date date = new Date(time * 1000);
-            SimpleDateFormat format = new SimpleDateFormat("E");
-            String mRusDay = mDayNamesTranslate.get(format.format(date).toString());
-            format.applyPattern("d.MM HH:mm");
-            return mRusDay + " " + format.format(date).toString();
+            SimpleDateFormat format = new SimpleDateFormat("HH:mm d.MM, E");
+            return format.format(date).toString();
         }
 
         /**
@@ -180,14 +170,15 @@ public class ForecastFragment extends Fragment {
                 double low = temperatureObject.getDouble(OWM_MIN);
 
                 highAndLow = formatHighLows(high, low);
-                resultStrs[i] = day + ", " + description + ", " + highAndLow;
+                resultStrs[i] = day + ": " + description + ", " + highAndLow;
             }
-            Log.v(LOG_TAG, "ResultString is: " + resultStrs[0] + " " + resultStrs[1] + " " + resultStrs[2]);
+            for (String s : resultStrs)
+            Log.v(LOG_TAG, s);
             return resultStrs;
         }
 
         @Override
-        protected Void doInBackground(String... param) {
+        protected String[] doInBackground(String... param) {
             // These two need to be declared outside the try/catch
 // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
@@ -247,7 +238,7 @@ public class ForecastFragment extends Fragment {
                 }
                 forecastJsonStr = buffer.toString();
                 try {
-                    getWeatherDataFromJson(forecastJsonStr);
+                    return getWeatherDataFromJson(forecastJsonStr);
                 } catch (org.json.JSONException e) {
                     Log.e(LOG_TAG,"JSON parsing err: "+ e.getMessage());
 
@@ -272,6 +263,20 @@ public class ForecastFragment extends Fragment {
                 }
             }
         return null;
+        }
+
+        @Override
+        protected void onPostExecute(String[] mForecastArray) {
+            if (mForecastArray != null) {
+                ArrayList<String> mForecastList = new ArrayList<String>();
+                for (String threeHourForecast : mForecastArray) {
+                    mForecastList.add(threeHourForecast);
+                }
+                ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<>(getActivity(),
+                        R.layout.list_item_forecast,R.id.list_item_forecast_textview,mForecastList);
+                mForecastListView.setAdapter(mArrayAdapter);
+            }
+            super.onPostExecute(mForecastArray);
         }
     }
 }
