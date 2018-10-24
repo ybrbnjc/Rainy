@@ -1,6 +1,7 @@
 package one.sable.android.rainy;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -14,8 +15,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,12 +35,14 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
+import static android.widget.Toast.makeText;
+
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ForecastFragment extends Fragment {
 
-    private ListView mForecastListView;
+    private ArrayAdapter<String> mArrayAdapter;
 
     public ForecastFragment() {
         // Required empty public constructor
@@ -53,21 +59,24 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-/*
-        ArrayList<String> mDummyForecast = new ArrayList<String>();
-
-        String[] mDummyArray = {"Today - Cloudy - 88/55","Tomorrow - Sunny - 90/75",
-                "Friday - Clear - 98/37","Saturday - Cloudy - 88/55","Sunay - Sunny - 90/75",
-                "Monday - Clear - 98/37"};
-        for (String forecast : mDummyArray) {
-            mDummyForecast.add(forecast);
-        }
-
-        ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<>(getActivity(),
+        ArrayList<String> mDummyForecast = new ArrayList<>();
+        mDummyForecast.add("Hi there!");
+        mArrayAdapter = new ArrayAdapter<>(getActivity(),
                 R.layout.list_item_forecast,R.id.list_item_forecast_textview,mDummyForecast);
-*/
-        mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
-//        mForecastListView.setAdapter(mArrayAdapter);
+        final ListView mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
+        mForecastListView.setAdapter(mArrayAdapter);
+        mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(getActivity().getApplicationContext(),
+                        (mForecastListView.getItemAtPosition(i)).toString(),
+                        Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(getActivity().getApplicationContext(), DetailActivity.class);
+                startActivity(intent);
+
+            }
+        });
+        new FetchWeatherTask().execute("524901");
 
         return rootView;
     }
@@ -192,7 +201,7 @@ public class ForecastFragment extends Fragment {
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
                 final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?";
-                final  String ID_PARAM = "id";
+                final String ID_PARAM = "id";
                 final String APPID_PARAM = "appid";
                 final String FORMAT_PARAM = "units";
                 final String MODE_PARAM = "mode";
@@ -268,13 +277,10 @@ public class ForecastFragment extends Fragment {
         @Override
         protected void onPostExecute(String[] mForecastArray) {
             if (mForecastArray != null) {
-                ArrayList<String> mForecastList = new ArrayList<String>();
+                mArrayAdapter.clear();
                 for (String threeHourForecast : mForecastArray) {
-                    mForecastList.add(threeHourForecast);
+                    mArrayAdapter.add(threeHourForecast);
                 }
-                ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<>(getActivity(),
-                        R.layout.list_item_forecast,R.id.list_item_forecast_textview,mForecastList);
-                mForecastListView.setAdapter(mArrayAdapter);
             }
             super.onPostExecute(mForecastArray);
         }
