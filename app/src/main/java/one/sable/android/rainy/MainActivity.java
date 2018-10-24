@@ -19,10 +19,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    @SuppressLint("ResourceType")
     public boolean onCreateOptionsMenu(Menu menu)
     {
-        getMenuInflater().inflate(R.layout.menu_activity_main, menu);
+        getMenuInflater().inflate(R.menu.menu_activity_main, menu);
         return true;
     }
 }

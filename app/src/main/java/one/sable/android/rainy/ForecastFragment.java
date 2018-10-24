@@ -82,10 +82,8 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
-    @SuppressLint("ResourceType")
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater)
-    {
-        inflater.inflate(R.layout.forecastfragment, menu);
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.menu_fragment_main, menu);
     }
 
     @Override
@@ -281,6 +279,8 @@ public class ForecastFragment extends Fragment {
                 for (String threeHourForecast : mForecastArray) {
                     mArrayAdapter.add(threeHourForecast);
                 }
+                Toast.makeText(getActivity().getApplicationContext(),
+                        "Weather has been updated",Toast.LENGTH_SHORT).show();
             }
             super.onPostExecute(mForecastArray);
         }
