@@ -21,9 +21,9 @@
         <activity android:name=".DetailActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="one.sable.android.rainy.MainActivity">
-            </meta-data>
+                android:value="one.sable.android.rainy.MainActivity"/>
         </activity>
+        <activity android:name=".SettingsActivity"/>
     </application>
 
 </manifest>

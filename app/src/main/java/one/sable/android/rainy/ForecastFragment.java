@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -43,6 +44,7 @@ import static android.widget.Toast.makeText;
 public class ForecastFragment extends Fragment {
 
     private ArrayAdapter<String> mArrayAdapter;
+    private String mDummyHelper;
 
     public ForecastFragment() {
         // Required empty public constructor
@@ -68,16 +70,14 @@ public class ForecastFragment extends Fragment {
         mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(getActivity().getApplicationContext(),
-                        (mForecastListView.getItemAtPosition(i)).toString(),
-                        Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(getActivity().getApplicationContext(), DetailActivity.class);
+                Intent intent = new Intent(getActivity().getApplicationContext(),
+                        DetailActivity.class)
+                        .putExtra(DetailActivity.EXTRA_3HOURSFORECAST,
+                                (mForecastListView.getItemAtPosition(i)).toString());
                 startActivity(intent);
 
             }
         });
-        new FetchWeatherTask().execute("524901");
-
         return rootView;
     }
 
@@ -89,12 +89,26 @@ public class ForecastFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.action_refresh){
-            String param = "524901";
-            new FetchWeatherTask().execute(param);
-            return true;
+        switch (id) {
+            case R.id.action_refresh: {
+                String param = MainActivity.mCityName;
+                new FetchWeatherTask().execute(param);
+                return true;
+            }
+            case R.id.action_settings: {
+                Intent intent = new Intent(getActivity().getApplicationContext(),
+                        SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            }
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onResume() {
+        new FetchWeatherTask().execute(MainActivity.mCityName);
+        super.onResume();
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -148,6 +162,7 @@ public class ForecastFragment extends Fragment {
 
             JSONObject forecastJson = new JSONObject(fcJsonStr);
             int mItemCount = forecastJson.getInt(OWM_ITEMS_COUNT);
+            mDummyHelper = forecastJson.getJSONObject("city").getString("name");
             JSONArray weatherArray = forecastJson.getJSONArray(OWM_LIST);
 
             String[] resultStrs = new String[mItemCount];
@@ -199,18 +214,20 @@ public class ForecastFragment extends Fragment {
                 // Possible parameters are avaiable at OWM's forecast API page, at
                 // http://openweathermap.org/API#forecast
                 final String FORECAST_BASE_URL = "http://api.openweathermap.org/data/2.5/forecast?";
-                final String ID_PARAM = "id";
+                final String CITYNAME_PARAM = "q";
                 final String APPID_PARAM = "appid";
                 final String FORMAT_PARAM = "units";
-                final String MODE_PARAM = "mode";
+                final String STRUCTURE_PARAM = "mode";
                 final String LANGUAGE_PARAM ="lang";
+                final String SEARCHMODE_PARAM = "type";
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(ID_PARAM,param[0])
+                        .appendQueryParameter(CITYNAME_PARAM,param[0])
                         .appendQueryParameter(APPID_PARAM,"2bec85f095f36e589c16cc58de321265")
-                        .appendQueryParameter(FORMAT_PARAM,"metric")
-                        .appendQueryParameter(MODE_PARAM,"JSON")
+                        .appendQueryParameter(FORMAT_PARAM,MainActivity.mUnits)
+                        .appendQueryParameter(STRUCTURE_PARAM,"JSON")
                         .appendQueryParameter(LANGUAGE_PARAM,"ru")
+                        .appendQueryParameter(SEARCHMODE_PARAM,"like")
                         .build();
 
                 URL url = new URL(builtUri.toString());
@@ -280,7 +297,7 @@ public class ForecastFragment extends Fragment {
                     mArrayAdapter.add(threeHourForecast);
                 }
                 Toast.makeText(getActivity().getApplicationContext(),
-                        "Weather has been updated",Toast.LENGTH_SHORT).show();
+                        "Weather has been updated. City name: " + mDummyHelper,Toast.LENGTH_SHORT).show();
             }
             super.onPostExecute(mForecastArray);
         }
