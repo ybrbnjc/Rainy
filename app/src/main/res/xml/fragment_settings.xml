@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:key="City"
+        android:title="Город"
+        android:defaultValue="Moscow"/>
+    <ListPreference
+        android:key="Units"
+        android:title="Единицы измерения"
+        android:entries="@array/units_key_array"
+        android:entryValues="@array/units_value_array"
+        android:defaultValue="0"/>
+</PreferenceScreen>
