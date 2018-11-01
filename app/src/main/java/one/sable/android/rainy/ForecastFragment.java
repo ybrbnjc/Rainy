@@ -2,6 +2,7 @@ package one.sable.android.rainy;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -91,8 +92,7 @@ public class ForecastFragment extends Fragment {
         int id = item.getItemId();
         switch (id) {
             case R.id.action_refresh: {
-                String param = MainActivity.mCityName;
-                new FetchWeatherTask().execute(param);
+                UpdateWeather();
                 return true;
             }
             case R.id.action_settings: {
@@ -106,9 +106,17 @@ public class ForecastFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        new FetchWeatherTask().execute(MainActivity.mCityName);
-        super.onResume();
+    public void onStart() {
+        UpdateWeather();
+        super.onStart();
+    }
+
+    private void UpdateWeather() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+        String[] params = new String[] {
+                prefs.getString("City", "Moscow"),
+                prefs.getString("Units","metric")};
+        new FetchWeatherTask().execute(params);
     }
 
     public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
@@ -224,7 +232,7 @@ public class ForecastFragment extends Fragment {
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
                         .appendQueryParameter(CITYNAME_PARAM,param[0])
                         .appendQueryParameter(APPID_PARAM,"2bec85f095f36e589c16cc58de321265")
-                        .appendQueryParameter(FORMAT_PARAM,MainActivity.mUnits)
+                        .appendQueryParameter(FORMAT_PARAM,param[1])
                         .appendQueryParameter(STRUCTURE_PARAM,"JSON")
                         .appendQueryParameter(LANGUAGE_PARAM,"ru")
                         .appendQueryParameter(SEARCHMODE_PARAM,"like")
