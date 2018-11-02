@@ -307,6 +307,7 @@ public class ForecastFragment extends Fragment {
                 Toast.makeText(getActivity().getApplicationContext(),
                         "Weather has been updated. City name: " + mDummyHelper,Toast.LENGTH_SHORT).show();
             }
+            //commit
             super.onPostExecute(mForecastArray);
         }
     }
