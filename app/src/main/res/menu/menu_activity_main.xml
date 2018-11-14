@@ -5,4 +5,8 @@
         android:title="Settings"
         android:orderInCategory="100"
         app:showAsAction="never"/>
+    <item
+        android:id="@+id/action_locate"
+        android:title="Show user location"
+        app:showAsAction="never"/>
 </menu>

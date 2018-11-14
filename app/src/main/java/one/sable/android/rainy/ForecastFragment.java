@@ -1,6 +1,6 @@
 package one.sable.android.rainy;
 
-import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -37,15 +36,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static android.widget.Toast.makeText;
-
 /**
  * A simple {@link Fragment} subclass.
  */
 public class ForecastFragment extends Fragment {
 
-    private ArrayAdapter<String> mArrayAdapter;
     private String mDummyHelper;
+    private ArrayAdapter<String> mArrayAdapter;
 
     public ForecastFragment() {
         // Required empty public constructor
@@ -62,10 +59,8 @@ public class ForecastFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-        ArrayList<String> mDummyForecast = new ArrayList<>();
-        mDummyForecast.add("Hi there!");
         mArrayAdapter = new ArrayAdapter<>(getActivity(),
-                R.layout.list_item_forecast,R.id.list_item_forecast_textview,mDummyForecast);
+                R.layout.list_item_forecast,R.id.list_item_forecast_textview,new ArrayList<String>());
         final ListView mForecastListView = (ListView) rootView.findViewById(R.id.listview_forecast);
         mForecastListView.setAdapter(mArrayAdapter);
         mForecastListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -101,21 +96,35 @@ public class ForecastFragment extends Fragment {
                 startActivity(intent);
                 return true;
             }
+            case R.id.action_locate: {
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+                Uri location = Uri.parse("geo:0,0?q=" + prefs.getString(
+                        getString(R.string.pref_location_key),
+                        getString(R.string.pref_location_default)));
+                Intent intent = new Intent(Intent.ACTION_VIEW, location);
+                Intent chosenIntent = Intent.createChooser(intent,"Выберите приложение:");
+                try {
+                    startActivity(chosenIntent);
+                } catch (ActivityNotFoundException e){
+                    Toast.makeText(getActivity().getApplicationContext(),
+                            "Location app not found",Toast.LENGTH_LONG).show();
+                }
+            }
         }
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onStart() {
-        UpdateWeather();
         super.onStart();
+        UpdateWeather();
     }
 
     private void UpdateWeather() {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
         String[] params = new String[] {
-                prefs.getString("City", "Moscow"),
-                prefs.getString("Units","metric")};
+                prefs.getString(getString(R.string.pref_location_key),getString(R.string.pref_location_default)),
+                prefs.getString(getString(R.string.pref_units_key),getString(R.string.pref_units_values_celsius))};
         new FetchWeatherTask().execute(params);
     }
 

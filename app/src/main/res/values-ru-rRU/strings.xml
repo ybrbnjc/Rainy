@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Rainy</string>
+    <string name="pref_location_label">Город</string>
+    <string name="pref_untits_label">Единицы измерения</string>
+    <string name="pref_units_names_celsius">Градусы Цельсия</string>
+    <string name="pref_units_names_farengheit">Градусы по Фаренгейту</string>
+</resources>

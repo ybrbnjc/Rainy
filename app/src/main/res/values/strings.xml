@@ -1,5 +1,12 @@
 <resources>
     <string name="app_name">Rainy</string>
-
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="pref_location_label">City</string>
+    <string name="pref_location_key" translatable="false">city</string>
+    <string name="pref_location_default" translatable="false">Moscow</string>
+    <string name="pref_untits_label">Units</string>
+    <string name="pref_units_key" translatable="false">units</string>
+    <string name="pref_units_names_celsius">Celsius</string>
+    <string name="pref_units_names_farengheit">Градусы по Фаренгейту</string>
+    <string name="pref_units_values_celsius" translatable="false">metric</string>
+    <string name="pref_units_values_farengheit" translatable="false">imperial</string>
 </resources>

@@ -6,5 +6,5 @@
     android:id="@+id/fragment_detail_textview"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:text="Hello world"/>
+    android:text=""/>
 </android.support.constraint.ConstraintLayout>
