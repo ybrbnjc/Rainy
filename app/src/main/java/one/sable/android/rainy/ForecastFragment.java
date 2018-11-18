@@ -97,15 +97,18 @@ public class ForecastFragment extends Fragment {
                 return true;
             }
             case R.id.action_locate: {
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-                Uri location = Uri.parse("geo:0,0?q=" + prefs.getString(
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
+                        getActivity().getApplicationContext());
+                String location = prefs.getString(
                         getString(R.string.pref_location_key),
-                        getString(R.string.pref_location_default)));
-                Intent intent = new Intent(Intent.ACTION_VIEW, location);
-                Intent chosenIntent = Intent.createChooser(intent,"Выберите приложение:");
-                try {
-                    startActivity(chosenIntent);
-                } catch (ActivityNotFoundException e){
+                        getString(R.string.pref_location_default));
+                Uri locUri = Uri.parse("geo:0,0").buildUpon()
+                        .appendQueryParameter("q",location)
+                        .build();
+                Intent intent = new Intent(Intent.ACTION_VIEW, locUri);
+                if (intent.resolveActivity(getActivity().getPackageManager()) != null) {
+                    startActivity(intent);
+                } else {
                     Toast.makeText(getActivity().getApplicationContext(),
                             "Location app not found",Toast.LENGTH_LONG).show();
                 }

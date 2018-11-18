@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ShareActionProvider;
 import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
@@ -31,6 +32,8 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public static class DetailFragment extends Fragment {
+        private ShareActionProvider mShareActionProvider;
+
         @Override
         public void onCreate(@Nullable Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -40,7 +43,13 @@ public class DetailActivity extends AppCompatActivity {
         @Override
         public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
             inflater.inflate(R.menu.menu_activity_main, menu);
+            inflater.inflate(R.menu.menu_fragment_detail,menu);
+            MenuItem menuItem = menu.findItem(R.id.action_share);
+            mShareActionProvider = (ShareActionProvider) menuItem.getActionProvider();
+            mShareActionProvider.setShareHistoryFileName("custom_share_history.xml");
         }
+
+        //public void doShare (Intent s)
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
