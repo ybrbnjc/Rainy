@@ -4,5 +4,6 @@
         android:id="@+id/action_share"
         android:title="Share"
         android:icon="@android:drawable/ic_menu_share"
-        app:showAsAction="always"/>
+        app:showAsAction="always"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
 </menu>

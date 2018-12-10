@@ -1,12 +1,17 @@
 package one.sable.android.rainy;
 
 import android.annotation.SuppressLint;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.widget.Toast;
+
+import one.sable.android.rainy.data.WeatherContract;
+import one.sable.android.rainy.data.WeatherDbHelper;
 
 public class MainActivity extends AppCompatActivity {
 
